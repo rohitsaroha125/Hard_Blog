@@ -11,6 +11,7 @@ import { PrismaClient } from '@prisma/client';
 import { z } from "zod";
 import ErrorObject from "../utils/errorObject.js";
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 const prisma = new PrismaClient();
 const signUpSchema = z.object({
     email: z.string(),
@@ -68,11 +69,13 @@ const userControllers = {
             if (!matchUser) {
                 throw new ErrorObject(401, 'fail', 'Invalid Credentials');
             }
+            const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
             res.status(201).json({
                 status: 'ok',
                 message: 'User Login Succesfull!',
                 data: {
-                    user
+                    user,
+                    token
                 }
             });
         }

@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { PrismaClient } from '@prisma/client';
 import { z } from "zod";
 import ErrorObject from "../utils/errorObject.js";
+import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 const signUpSchema = z.object({
     email: z.string(),
@@ -28,11 +29,12 @@ const userControllers = {
             if (!inputValidation.success) {
                 throw new ErrorObject(401, 'fail', 'Invalid Inputs');
             }
+            const encyptedPassword = yield bcrypt.hash(password, 10);
             const user = yield prisma.user.create({
                 data: {
                     name,
                     email,
-                    password
+                    password: encyptedPassword
                 }
             });
             res.status(201).json({
@@ -62,12 +64,7 @@ const userControllers = {
             if (!user) {
                 throw new ErrorObject(401, 'fail', 'Email Not Found');
             }
-            const matchUser = yield prisma.user.findUnique({
-                where: {
-                    email,
-                    password
-                }
-            });
+            const matchUser = yield bcrypt.compare(password, user.password);
             if (!matchUser) {
                 throw new ErrorObject(401, 'fail', 'Invalid Credentials');
             }
@@ -75,7 +72,7 @@ const userControllers = {
                 status: 'ok',
                 message: 'User Login Succesfull!',
                 data: {
-                    user: matchUser
+                    user
                 }
             });
         }

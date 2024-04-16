@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { PrismaClient } from '@prisma/client'
 import { z } from "zod";
 import ErrorObject from "../utils/errorObject.js";
+import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
@@ -26,11 +27,13 @@ const userControllers = {
                 throw new ErrorObject(401, 'fail', 'Invalid Inputs')
             }
 
+            const encyptedPassword = await bcrypt.hash(password, 10)
+
             const user = await prisma.user.create({
                 data:{
                     name,
                     email,
-                    password
+                    password: encyptedPassword
                 }
             })
 
@@ -65,12 +68,7 @@ const userControllers = {
                 throw new ErrorObject(401, 'fail', 'Email Not Found')
             }
 
-            const matchUser = await prisma.user.findUnique({
-                where:{
-                    email,
-                    password
-                }
-            })
+            const matchUser = await bcrypt.compare(password, user.password)
 
             if (!matchUser) {
                 throw new ErrorObject(401, 'fail', 'Invalid Credentials')
@@ -80,7 +78,7 @@ const userControllers = {
                 status:'ok',
                 message:'User Login Succesfull!',
                 data:{
-                    user: matchUser
+                    user
                 }
             })
 

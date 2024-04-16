@@ -11,6 +11,11 @@ const signUpSchema = z.object({
     password: z.string()
   })
 
+const signInSchema = z.object({
+    email: z.string(),
+    password: z.string()
+  })
+
 const userControllers = {
     signUp: async (req:Request, res: Response, next: NextFunction) => {
         try{
@@ -34,6 +39,48 @@ const userControllers = {
                 message:'User Registered Succesfully!',
                 data:{
                     user
+                }
+            })
+
+        }catch(err){
+            next(err)
+        }
+    },
+    signIn: async (req:Request, res: Response, next: NextFunction) => {
+        try{
+            const {email, password} = req.body
+            const inputValidation = signInSchema.safeParse({email, password})
+
+            if (!inputValidation.success) {
+                throw new ErrorObject(401, 'fail', 'Invalid Inputs')
+            }
+
+            const user = await prisma.user.findUnique({
+                where:{
+                    email
+                }
+            })
+
+            if (!user) {
+                throw new ErrorObject(401, 'fail', 'Email Not Found')
+            }
+
+            const matchUser = await prisma.user.findUnique({
+                where:{
+                    email,
+                    password
+                }
+            })
+
+            if (!matchUser) {
+                throw new ErrorObject(401, 'fail', 'Invalid Credentials')
+            }
+
+            res.status(201).json({
+                status:'ok',
+                message:'User Login Succesfull!',
+                data:{
+                    user: matchUser
                 }
             })
 

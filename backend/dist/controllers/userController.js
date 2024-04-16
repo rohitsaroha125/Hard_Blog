@@ -16,6 +16,10 @@ const signUpSchema = z.object({
     name: z.string(),
     password: z.string()
 });
+const signInSchema = z.object({
+    email: z.string(),
+    password: z.string()
+});
 const userControllers = {
     signUp: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
@@ -36,6 +40,42 @@ const userControllers = {
                 message: 'User Registered Succesfully!',
                 data: {
                     user
+                }
+            });
+        }
+        catch (err) {
+            next(err);
+        }
+    }),
+    signIn: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const { email, password } = req.body;
+            const inputValidation = signInSchema.safeParse({ email, password });
+            if (!inputValidation.success) {
+                throw new ErrorObject(401, 'fail', 'Invalid Inputs');
+            }
+            const user = yield prisma.user.findUnique({
+                where: {
+                    email
+                }
+            });
+            if (!user) {
+                throw new ErrorObject(401, 'fail', 'Email Not Found');
+            }
+            const matchUser = yield prisma.user.findUnique({
+                where: {
+                    email,
+                    password
+                }
+            });
+            if (!matchUser) {
+                throw new ErrorObject(401, 'fail', 'Invalid Credentials');
+            }
+            res.status(201).json({
+                status: 'ok',
+                message: 'User Login Succesfull!',
+                data: {
+                    user: matchUser
                 }
             });
         }

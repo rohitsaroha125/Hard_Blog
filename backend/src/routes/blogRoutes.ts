@@ -1,10 +1,10 @@
 import express from 'express'
+import blogController from '../controllers/blogController.js' 
+import { authMiddleware } from '../utils/authMiddleware.js'
 
 const router = express.Router()
 
-router.get('/bulk', (req, res, next) => {
-    res.send('Hello World')
-})
+router.get('/', authMiddleware, blogController.getBlogs)
 
 router.get('/:id', (req, res, next) => {
     res.send('Hello World')

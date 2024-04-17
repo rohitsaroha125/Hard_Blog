@@ -2,14 +2,8 @@ import express from 'express';
 import blogController from '../controllers/blogController.js';
 import { authMiddleware } from '../utils/authMiddleware.js';
 const router = express.Router();
-router.get('/', authMiddleware, blogController.getBlogs);
-router.get('/:id', (req, res, next) => {
-    res.send('Hello World');
-});
-router.post('/', (req, res, next) => {
-    res.send('Hello World');
-});
-router.put('/', (req, res, next) => {
-    res.send('Hello World');
-});
+router.get('/bulk', authMiddleware, blogController.getBlogs);
+router.get('/:id', authMiddleware, blogController.getBlog);
+router.post('/', authMiddleware, blogController.createBlog);
+router.put('/:id', authMiddleware, blogController.updateBlog);
 export default router;

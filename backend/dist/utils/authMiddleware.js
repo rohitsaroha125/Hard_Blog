@@ -14,7 +14,7 @@ export function authMiddleware(req, res, next) {
         var _a;
         try {
             if (req.headers.authorization) {
-                const token = (_a = req === null || req === void 0 ? void 0 : req.headers) === null || _a === void 0 ? void 0 : _a.authorization.split(" ")[0];
+                const token = (_a = req === null || req === void 0 ? void 0 : req.headers) === null || _a === void 0 ? void 0 : _a.authorization.split(" ")[1];
                 if (!token) {
                     throw new ErrorObject(401, 'fail', 'Invalid Token Detected');
                 }

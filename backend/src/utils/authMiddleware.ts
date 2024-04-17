@@ -9,7 +9,7 @@ interface NewRequest extends Request{
 export async function authMiddleware(req: NewRequest, res: Response, next: NextFunction){
     try{
         if (req.headers.authorization) {
-            const token = req?.headers?.authorization.split(" ")[0]
+            const token = req?.headers?.authorization.split(" ")[1]
 
             if (!token) {
                 throw new ErrorObject(401, 'fail', 'Invalid Token Detected')
